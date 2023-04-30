@@ -8,7 +8,6 @@
   <script src="vendor/react-dom.development.js"></script>
   <script src="vendor/babel.min.js"></script>
   <script src="data.js"></script>
-  <!-- Файл для настроек приложения -->
   <script src="settings.js"></script>
 </head>
 <body>
@@ -31,14 +30,23 @@
         }
         setStepsCount((i) => i + 1);
 
-        console.log(finishedItems);
-        console.log(stepsCount);
+
+
+      };
+
+      const isGameOver = finishedItems.length === images.length;
+
+      const handleReset = () => {
+        setFinishedItems([]);
+        setStepsCount(0);
       };
 
       return {
         finishedItems,
         checkItems,
-        stepsCount
+        stepsCount,
+        isGameOver,
+        handleReset
       }
     }
 
@@ -46,18 +54,25 @@
       const {
         checkItems,
         finishedItems,
-        stepsCount
+        stepsCount,
+        isGameOver,
+        handleReset
       } = useGame(images);
 
       return (
         <section className="game container">
-          <Progress steps={stepsCount} finishedCount={finishedItems.length}/>
+          <Progress
+            steps={stepsCount}
+            finishedCount={finishedItems.length}
+            imagesCount={images.length}
+          />
           <Grid
             images={images}
             finishedItems={finishedItems}
             checkItems={checkItems}
           />
-          {/* TODO% отобразите модальное окно при победе */}
+
+          {isGameOver && <Modal steps={stepsCount} onResetClick={handleReset}/>}
         </section>
       );
     }
@@ -69,7 +84,7 @@
         if (finishedItems.includes(id) || visibleItems.includes(id)) {
           return;
         }
-        // TODO: напишите логику выбора пары карточек для сравнения
+
         switch (visibleItems.length) {
           case 0:
             setVisibleItems([id]);
@@ -80,9 +95,6 @@
             setTimeout(() => {
               setVisibleItems([]);
             }, TIMEOUT);
-            break;
-          case 2:
-            setVisibleItems([id]);
             break;
           default:
             setVisibleItems([]);
@@ -128,18 +140,31 @@
       );
     }
 
-    function Progress({steps, finishedCount = 0}) {
+    function Progress({steps, finishedCount = 0, imagesCount = 0}) {
 
       return (
         <>
           <div className="progress-wrapper">
-            <div className="progress" style={{width:`${((finishedCount/2)/6)*100}%`}}></div>
+            <div className="progress" style={{width:`${((finishedCount/2)/(imagesCount/2))*100}%`}}></div>
           </div>
-          <p className="progress-description">Открыто <span>{finishedCount/2}</span> / <span>6</span></p>
-          <div className="steps">{steps}</div>
+          <p className="progress-description">Открыто <span>{finishedCount/2}</span> / <span>{imagesCount/2}</span></p>
+          <div className="steps">Шаг {steps}</div>
         </>
+      );
+    }
+
+    function Modal({steps, onResetClick}) {
+      return (
+        <div className="modal">
+          <div className="modal-box">
+            <h3 className="modal-caption">Победа!</h3>
+            <p className="modal-description">Вы собрали все пары за {steps} шагов</p>
+            <button className="button modal-button" type="button" onClick={onResetClick}>Новая игра</button>
+          </div>
+        </div>
       );
     }
   </script>
 </body>
 </html>
+
