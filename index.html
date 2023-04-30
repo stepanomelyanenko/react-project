@@ -15,7 +15,7 @@
   <script type="text/babel">
     const container = document.getElementById('root');
     const root = ReactDOM.createRoot(container);
-    root.render(<App images={images}/>);
+    root.render(<App images={images} />);
 
     const useGame = (images) => {
       const [finishedItems, setFinishedItems] = React.useState([]);
@@ -50,7 +50,7 @@
       }
     }
 
-    function App({images = []}) {
+    function App({images = [], results =[]}) {
       const {
         checkItems,
         finishedItems,
@@ -59,24 +59,65 @@
         handleReset
       } = useGame(images);
 
-      return (
-        <section className="game container">
-          <Progress
-            steps={stepsCount}
-            finishedCount={finishedItems.length}
-            imagesCount={images.length}
-          />
-          <Grid
-            images={images}
-            finishedItems={finishedItems}
-            checkItems={checkItems}
-          />
+      const [page, setPage] = React.useState(AppRoute.Game);
 
-          {isGameOver && <Modal steps={stepsCount} onResetClick={handleReset}/>}
-        </section>
-      );
+      const handleResults = () => {
+        setPage(AppRoute.Results);
+      }
+
+      const handleRestart = () => {
+        handleReset();
+        setPage(AppRoute.Game);
+      }
+
+      const getPage = (route) => {
+        switch (route) {
+          case AppRoute.Game:
+            return (
+              <GamePage
+                isGameOver={isGameOver}
+                stepsCount={stepsCount}
+                finishedItems={finishedItems}
+                images={images}
+                checkItems={checkItems}
+                handleReset={handleResults}
+
+              />
+            );
+          case AppRoute.Results:
+            return (
+                    <ResultsPage
+                      current={stepsCount}
+                      onRestart={handleRestart}
+                      results={results}
+                    />
+            );
+          default:
+            return null;
+        }
+      };
+      return getPage(page);
     }
 
+
+    function GamePage({isGameOver, stepsCount, finishedItems, images, checkItems, handleReset}) {
+      return (
+              <section className="game container">
+                <Progress
+                  steps={stepsCount}
+                  finishedCount={finishedItems.length}
+                  imagesCount={images.length}
+                />
+                <Grid
+                  images={images}
+                  finishedItems={finishedItems}
+                  checkItems={checkItems}
+                />
+
+                {isGameOver && <Modal steps={stepsCount} onResetClick={handleReset}/>}
+              </section>
+      );
+    }
     function Grid({images = [], finishedItems, checkItems}) {
       const [visibleItems, setVisibleItems] = React.useState([]);
 
@@ -162,6 +203,53 @@
             <button className="button modal-button" type="button" onClick={onResetClick}>Новая игра</button>
           </div>
         </div>
+      );
+    }
+
+    function ResultsPage({current, results, onRestart}) {
+      return (
+        <section className="result container">
+          <h2>Лучшие результаты</h2>
+          <p>Вы завершили игру за <b>16 шагов</b>, так держать!</p>
+          <table className="result-table">
+            <thead>
+            <tr className="result-table-row">
+              <th>Место</th>
+              <th>Имя</th>
+              <th>Шаги</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr className="result-table-row">
+              <td>1</td>
+              <td>Вася</td>
+              <td>13</td>
+            </tr>
+            <tr className="result-table-row active">
+              <td>2</td>
+              <td>Ваш результат</td>
+              <td>16</td>
+            </tr>
+            <tr className="result-table-row">
+              <td>3</td>
+              <td>Аня</td>
+              <td>24</td>
+            </tr>
+            <tr className="result-table-row">
+              <td>4</td>
+              <td>Петя</td>
+              <td>25</td>
+            </tr>
+            <tr className="result-table-row">
+              <td>5</td>
+              <td>Маша</td>
+              <td>27</td>
+            </tr>
+            </tbody>
+          </table>
+          <p>Хотите попробовать ещё раз?</p>
+          <button className="button result-button" type="button" onClick={onRestart}>Новая игра</button>
+        </section>
       );
     }
   </script>
