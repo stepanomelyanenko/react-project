@@ -15,7 +15,7 @@
   <script type="text/babel">
     const container = document.getElementById('root');
     const root = ReactDOM.createRoot(container);
-    root.render(<App images={images} />);
+    root.render(<App images={images} results={res}/>);
 
     const useGame = (images) => {
       const [finishedItems, setFinishedItems] = React.useState([]);
@@ -29,9 +29,6 @@
           setFinishedItems((items) => [...items, firstItem, secondItem]);
         }
         setStepsCount((i) => i + 1);
-
-
-
       };
 
       const isGameOver = finishedItems.length === images.length;
@@ -50,7 +47,7 @@
       }
     }
 
-    function App({images = [], results =[]}) {
+    function App({images = [], results = []}) {
       const {
         checkItems,
         finishedItems,
@@ -207,10 +204,22 @@
     }
 
     function ResultsPage({current, results, onRestart}) {
+      const sortedResults = [
+        ...results,
+        {name: 'Ваш результат', stepsCount: current}
+      ].sort((a, b) => a.stepsCount - b.stepsCount);
+      const resultsRows = sortedResults.map(({ name, stepsCount }, index) => (
+              <tr key={name} className={`result-table-row ${stepsCount === current ? 'active' : ''}`}>
+                <td>{index + 1}</td>
+                <td>{name}</td>
+                <td>{stepsCount}</td>
+              </tr>
+      ));
+
       return (
         <section className="result container">
           <h2>Лучшие результаты</h2>
-          <p>Вы завершили игру за <b>16 шагов</b>, так держать!</p>
+          <p>Вы завершили игру за <b>{current} шагов</b>, так держать!</p>
           <table className="result-table">
             <thead>
             <tr className="result-table-row">
@@ -220,31 +229,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr className="result-table-row">
-              <td>1</td>
-              <td>Вася</td>
-              <td>13</td>
-            </tr>
-            <tr className="result-table-row active">
-              <td>2</td>
-              <td>Ваш результат</td>
-              <td>16</td>
-            </tr>
-            <tr className="result-table-row">
-              <td>3</td>
-              <td>Аня</td>
-              <td>24</td>
-            </tr>
-            <tr className="result-table-row">
-              <td>4</td>
-              <td>Петя</td>
-              <td>25</td>
-            </tr>
-            <tr className="result-table-row">
-              <td>5</td>
-              <td>Маша</td>
-              <td>27</td>
-            </tr>
+            {resultsRows}
             </tbody>
           </table>
           <p>Хотите попробовать ещё раз?</p>
