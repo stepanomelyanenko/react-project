@@ -3,17 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <title>Игра Мемори</title>
+  <script src="vendor/react.development.js"></script>
+  <script src="vendor/react-dom.development.js"></script>
+  <script src="vendor/babel.min.js"></script>
   <link rel="stylesheet" href="css/style.css">
-  <!--подключите библиотеки React, ReactDOM и BabelJS-->
-  <!--подключите файл данных-->
+  <script src="data.js"></script>
 </head>
 <body>
   <div id="root">Корневой элемент</div>
   <script type="text/babel">
+    const finishedCards = new Set(finishedItems);
+    const shownCards = new Set(visibleItems);
+
     const container = document.getElementById('root');
-    // TODO: создайте корневой компонент приложения
-    // TODO: создайте компонент карточки
-    // TODO: передайте данные в компоненты
+    const root = ReactDOM.createRoot(container);
+    root.render(<App images={images}/>);
+
+
+    function App({images = []}) {
+
+      return (
+              <section className="game container">
+                <ul className="cards cards-theme-cars">
+                  <ImageCards images={images} />
+                </ul>
+              </section>
+      );
+    }
+
+    function ImageCards({images = []}) {
+      const cards = images.map((item) => (
+              <ImageCard
+                      image={item}
+                      key={item.id}/>
+      ));
+
+      return (
+              <ul className="cards cards-theme-cars">
+                {cards}
+              </ul>
+      );
+    }
+
+    function ImageCard({image}) {
+      const {id, url, description} = image;
+
+      return (
+              <li className={`card ${shownCards.has(id) ? 'card-show' : ''} ${finishedCards.has(id) ? 'card-finished' : ''}`}>
+                <img src={url} width="204" height="144" alt={description} />
+              </li>
+      );
+    }
   </script>
 </body>
 </html>
+
