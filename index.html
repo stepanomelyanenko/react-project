@@ -8,43 +8,86 @@
   <script src="vendor/react-dom.development.js"></script>
   <script src="vendor/babel.min.js"></script>
   <script src="data.js"></script>
+  <!-- Файл для настроек приложения -->
+  <script src="settings.js"></script>
 </head>
 <body>
   <div id="root"></div>
   <script type="text/babel">
-    const step = 0;
     const container = document.getElementById('root');
     const root = ReactDOM.createRoot(container);
     root.render(<App images={images}/>);
 
-    function App({images = []}) {
-      const [shownCount, setShownCount] = React.useState(step);
-      const updateShownCount = () => {
-        setShownCount((i) => (i + 1));
+    const useGame = (images) => {
+      const [finishedItems, setFinishedItems] = React.useState([]);
+      const [stepsCount, setStepsCount] = React.useState(0);
+
+      const checkItems = (firstItem, secondItem) => {
+        const firstImage = images.find(({id}) => id === firstItem);
+        const secondImage = images.find(({id}) => id === secondItem);
+
+        if (firstImage.url === secondImage.url) {
+          setFinishedItems((items) => [...items, firstItem, secondItem]);
+        }
+        setStepsCount((i) => i + 1);
+
+        console.log(finishedItems);
+        console.log(stepsCount);
+      };
+
+      return {
+        finishedItems,
+        checkItems,
+        stepsCount
       }
+    }
+
+    function App({images = []}) {
+      const {
+        checkItems,
+        finishedItems,
+        stepsCount
+      } = useGame(images);
 
       return (
         <section className="game container">
-          <div className="steps">Шаг {shownCount}</div>
+          <Progress steps={stepsCount} finishedCount={finishedItems.length}/>
           <Grid
             images={images}
-            onCardClick={updateShownCount}
+            finishedItems={finishedItems}
+            checkItems={checkItems}
           />
+          {/* TODO% отобразите модальное окно при победе */}
         </section>
       );
     }
 
-    function Grid({images = [], visibleItems = [], finishedItems = [], onCardClick}) {
-      const [visibleCards, setVisibleCards] = React.useState(visibleItems);
+    function Grid({images = [], finishedItems, checkItems}) {
+      const [visibleItems, setVisibleItems] = React.useState([]);
 
-      const  handleCardClick = (id) => {
-        if (visibleCards.includes(id)) {
+      const handleCardClick = (id) => {
+        if (finishedItems.includes(id) || visibleItems.includes(id)) {
           return;
         }
-
-        setVisibleCards((items) => [...items, id]);
-        onCardClick();
-      }
+        // TODO: напишите логику выбора пары карточек для сравнения
+        switch (visibleItems.length) {
+          case 0:
+            setVisibleItems([id]);
+            break;
+          case 1:
+            setVisibleItems((items) => [...items, id]);
+            checkItems(visibleItems[0], id);
+            setTimeout(() => {
+              setVisibleItems([]);
+            }, TIMEOUT);
+            break;
+          case 2:
+            setVisibleItems([id]);
+            break;
+          default:
+            setVisibleItems([]);
+        }
+      };
 
       return (
         <ul className="cards">
@@ -54,7 +97,7 @@
               id={item.id}
               url={item.url}
               description={item.description}
-              isVisible={visibleCards.includes(item.id)}
+              isVisible={visibleItems.includes(item.id)}
               isFinished={finishedItems.includes(item.id)}
               onCardClick={handleCardClick}
             />
@@ -63,31 +106,38 @@
       );
     }
 
-    function Card({url, id, description, isVisible, isFinished, onCardClick}) {
-
-      const handleClick = () => {
-        if (isFinished) {
-          return;
-        }
-        onCardClick(id);
-      };
-
+    function Card({url, description, id, isVisible, isFinished, onCardClick}) {
       const className = `${
         isVisible ? 'card-show' : ''
       } ${
         isFinished ? 'card-finished' : ''
       }`;
 
+      const handleClick = () => {
+        onCardClick(id);
+      };
+
       return (
-        <li
-           className={`card ${className}`}
-           onClick={handleClick}>
+        <li onClick={handleClick} className={`card ${className}`}>
           <img
             width="204" height="144"
             src={url}
             alt={description}
           />
         </li>
+      );
+    }
+
+    function Progress({steps, finishedCount = 0}) {
+
+      return (
+        <>
+          <div className="progress-wrapper">
+            <div className="progress" style={{width:`${((finishedCount/2)/6)*100}%`}}></div>
+          </div>
+          <p className="progress-description">Открыто <span>{finishedCount/2}</span> / <span>6</span></p>
+          <div className="steps">{steps}</div>
+        </>
       );
     }
   </script>
