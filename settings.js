@@ -5,7 +5,7 @@ const AppRoute = {
 };
 
 const TIMEOUT = 900;
-const RANDOMIZED = true;
+const RANDOMIZED = false;
 
 const GAME_TYPES = [
   { type: 'cats', icon: 'ico-button-cats', label: 'Котики' },
