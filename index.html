@@ -15,7 +15,7 @@
   <script type="text/babel">
     const container = document.getElementById('root');
     const root = ReactDOM.createRoot(container);
-    root.render(<App images={images} results={res}/>);
+    root.render(<App images={images} userResults={results}/>);
 
     const useGame = (images) => {
       const [finishedItems, setFinishedItems] = React.useState([]);
@@ -47,7 +47,7 @@
       }
     }
 
-    function App({images = [], results = []}) {
+    function App({images = [], userResults = []}) {
       const {
         checkItems,
         finishedItems,
@@ -95,7 +95,6 @@
       };
       return getPage(page);
     }
-
 
     function GamePage({isGameOver, stepsCount, finishedItems, images, checkItems, handleReset}) {
       return (
@@ -197,7 +196,7 @@
           <div className="modal-box">
             <h3 className="modal-caption">Победа!</h3>
             <p className="modal-description">Вы собрали все пары за {steps} шагов</p>
-            <button className="button modal-button" type="button" onClick={onResetClick}>Новая игра</button>
+            <button className="button modal-button" type="button" onClick={onResetClick}>Показать результаты</button>
           </div>
         </div>
       );
@@ -218,7 +217,7 @@
 
       return (
         <section className="result container">
-          <h2>Лучшие результаты</h2>
+          <h2>Лучшие результаты:</h2>
           <p>Вы завершили игру за <b>{current} шагов</b>, так держать!</p>
           <table className="result-table">
             <thead>
