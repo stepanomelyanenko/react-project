@@ -240,6 +240,10 @@ body {
 
 /* класс для смены рубашки карточек, добавляется списку .cards */
 
+.cards-theme-cats {
+  --theme-back: url("../img/back-cats.svg");
+}
+
 .cards-theme-flowers {
   --theme-back: url("../img/back-flowers.svg");
 }
@@ -447,6 +451,10 @@ body {
 .result-table-row td {
   padding: 8px 30px;
   text-align: left;
+}
+
+thead .result-table-row:last-child {
+  margin-bottom: 0;
 }
 
 .result-table-row:last-child {

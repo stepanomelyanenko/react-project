@@ -7,13 +7,13 @@
   <script src="vendor/react.development.js"></script>
   <script src="vendor/react-dom.development.js"></script>
   <script src="vendor/babel.min.js"></script>
+  <script src="vendor/get-declension.min.umd.js"></script>
   <script src="data.js"></script>
   <script src="settings.js"></script>
 </head>
 <body>
   <div id="root"></div>
   <script type="text/babel">
-
     const container = document.getElementById('root');
     const root = ReactDOM.createRoot(container);
     root.render(<App />);
@@ -51,6 +51,7 @@
     function App() {
       const [page, setPage] = React.useState(AppRoute.Initial);
       const [images, setImages] = React.useState([]);
+      const [cardsType, setCardsType] = React.useState(null);
 
       const {
         checkItems,
@@ -64,6 +65,7 @@
 
       const handleStart = (type) => {
         generateImagesByType(type);
+        setCardsType(type);
         handleReset();
         setPage(AppRoute.Game);
       }
@@ -88,6 +90,7 @@
                 images={images}
                 checkItems={checkItems}
                 handleReset={handleResults}
+                cardsType={cardsType}
 
               />
             );
@@ -144,7 +147,7 @@
       );
     }
 
-    function GamePage({isGameOver, stepsCount, finishedItems, images, checkItems, handleReset}) {
+    function GamePage({isGameOver, stepsCount, finishedItems, images, checkItems, handleReset, cardsType}) {
       return (
               <section className="game container">
                 <Progress
@@ -156,13 +159,15 @@
                   images={images}
                   finishedItems={finishedItems}
                   checkItems={checkItems}
+                  cardsType={cardsType}
                 />
 
-                {isGameOver && <Modal steps={stepsCount} onResetClick={handleReset}/>}
+                {isGameOver && <Modal onResetClick={handleReset}/>}
               </section>
       );
     }
-    function Grid({images = [], finishedItems, checkItems}) {
+
+    function Grid({images = [], finishedItems, checkItems, cardsType}) {
       const [visibleItems, setVisibleItems] = React.useState([]);
 
       const handleCardClick = (id) => {
@@ -187,7 +192,7 @@
       };
 
       return (
-        <ul className="cards">
+        <ul className={`cards cards-theme-${cardsType}`}>
           {images.map((item) => (
             <Card
               key={item.id}
@@ -238,12 +243,13 @@
       );
     }
 
-    function Modal({steps, onResetClick}) {
+    function Modal({onResetClick}) {
+
       return (
         <div className="modal">
           <div className="modal-box">
             <h3 className="modal-caption">Победа!</h3>
-            <p className="modal-description">Вы собрали все пары за {steps} шагов</p>
+            <p className="modal-description">Теперь давайте узнаем результаты этой партии</p>
             <button className="button modal-button" type="button" onClick={onResetClick}>Показать результаты</button>
           </div>
         </div>
@@ -251,6 +257,11 @@
     }
 
     function ResultsPage({current, results, onRestart}) {
+      const stepsDeclension = getDeclension({
+        count: current,
+        one: 'шаг', few: 'шага', many: 'шагов'
+      });
+
       const sortedResults = [
         ...results,
         {name: 'Ваш результат', stepsCount: current}
@@ -266,7 +277,7 @@
       return (
         <section className="result container">
           <h2>Лучшие результаты:</h2>
-          <p>Вы завершили игру за <b>{current} шагов</b>, так держать!</p>
+          <p>Вы завершили игру за <b>{stepsDeclension}</b>, так держать!</p>
           <table className="result-table">
             <thead>
             <tr className="result-table-row">

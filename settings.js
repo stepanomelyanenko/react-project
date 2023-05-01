@@ -9,8 +9,8 @@ const RANDOMIZED = true;
 
 const GAME_TYPES = [
   { type: 'cats', icon: 'ico-button-cats', label: 'Котики' },
-  { type: 'cars', icon: 'ico-button-flowers', label: 'Цветочки' },
-  { type: 'flowers', icon: 'ico-button-cars', label: 'Машины' },
+  { type: 'flowers', icon: 'ico-button-flowers', label: 'Цветочки' },
+  { type: 'cars', icon: 'ico-button-cars', label: 'Машины' },
 ];
 
 window.TIMEOUT = TIMEOUT;
